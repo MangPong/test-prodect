@@ -1,0 +1,89 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  email    String   @unique
+  phone    String   @unique
+  password String
+  profile  Profile? // ไม่ต้องใช้ @relation ที่นี่แล้ว
+  profileId Int?   // ฟิลด์ที่เชื่อมโยงกับ Profile
+
+  @@unique([username, email, phone])
+}
+
+model Profile {
+  id                Int    @id @default(autoincrement())
+  userId            Int    @unique // userId เป็น unique
+  user              User   @relation(fields: [userId], references: [id]) // เชื่อมโยงกับ User
+  firstName         String
+  lastName          String
+  photoIDcard       String
+  relationship      String
+  phoneRelationship String
+  phoneNumber       String
+  email             String
+  contactInfo       String
+  title             String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model UserSell {
+  id        Int          @id @default(autoincrement())
+  username  String       @unique
+  email     String       @unique
+  phone     String       @unique
+  password  String
+  profile   ProfileSell? // Linked to ProfileSell
+  formSells FormSell[] // Linked to FormSell
+
+  @@unique([username, email, phone])
+}
+
+model ProfileSell {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  title         String?  @default("")
+  firstName     String
+  lastName      String
+  username      String?  @default("")
+  phoneNumber   String?  @default("")
+  email         String?  @default("")
+  address       String
+  bank          String?  @default("")
+  accountNumber String?  @default("")
+  profileImage  String?  @default("")
+  photoIdCard   String
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userSell      UserSell @relation(fields: [userId], references: [id])
+}
+
+model FormSell {
+  id                Int      @id @default(autoincrement())
+  userSellId        Int
+  nameDormitory     String
+  typeDormitory     String
+  addressDormitory  String
+  dormitoryDetails  String?
+  facilities        String
+  roomNumber        Int
+  distanceDormitory Float
+  roomDeposit       Float
+  priceMonth        Float
+  priceElectricity  Float
+  priceWater        Float
+  priceWifi         Float
+  priceOther        Float
+  photoDormitory    String?
+  userSell          UserSell @relation(fields: [userSellId], references: [id]) // Linked back to UserSell
+}
